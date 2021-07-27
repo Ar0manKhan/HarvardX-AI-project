@@ -8,7 +8,7 @@ class CrosswordCreator:
         """
         Create new CSP crossword generate.
         """
-        self.crossword = crossword
+        self.crossword: Crossword = crossword
         self.domains = {
             var: self.crossword.words.copy() for var in self.crossword.variables
         }
@@ -102,7 +102,12 @@ class CrosswordCreator:
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
-        raise NotImplementedError
+        for var in self.domains:
+            words = self.domains[var]
+            length = var.length
+            for word in words.copy():
+                if len(word) != length:
+                    words.remove(word)
 
     def revise(self, x, y):
         """
@@ -113,7 +118,13 @@ class CrosswordCreator:
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        raise NotImplementedError
+        x_i, y_i = self.crossword.overlaps[(x, y)]
+        y_letters = set([i[y_i] for i in self.domains[y]])
+        unmatched_words_x = set(
+            filter(lambda x: x[x_i] not in y_letters, self.domains[x])
+        )
+        self.domains[x].difference_update(unmatched_words_x)
+        return bool(unmatched_words_x)
 
     def ac3(self, arcs=None):
         """
@@ -197,4 +208,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    pass
+
+c = Crossword("data/structure0.txt", "data/words0.txt")
+creator = CrosswordCreator(c)
+creator.enforce_node_consistency()
