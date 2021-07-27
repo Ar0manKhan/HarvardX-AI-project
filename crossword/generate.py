@@ -1,4 +1,5 @@
 import sys
+from copy import deepcopy
 
 from crossword import *
 
@@ -135,7 +136,20 @@ class CrosswordCreator:
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-        raise NotImplementedError
+        if not arcs:
+            arcs = list(
+                filter(lambda x: self.crossword.overlaps[x], self.crossword.overlaps)
+            )
+
+        domain_copy = deepcopy(self.domains)
+        for x, y in arcs:
+            if self.revise(x, y):
+                if len(self.domains[x]) == 0:
+                    self.domains = domain_copy
+                    return False
+                for z in self.crossword.neighbors(x) - {y}:
+                    arcs.append((z, x))
+        return True
 
     def assignment_complete(self, assignment):
         """
