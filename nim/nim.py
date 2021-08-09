@@ -161,14 +161,17 @@ class NimAI:
                 available_actions,
             )
         )
+        random_actions = available_actions - best_actions
+        weights = [(1 - self.epsilon) / len(best_actions)] * len(best_actions)
+        if random_actions:
+            if epsilon:
+                weights.extend(
+                    [self.epsilon / len(random_actions)] * len(random_actions)
+                )
+            else:
+                weights.extend([0] * len(random_actions))
 
-        return random.choice(
-            tuple(available_actions - best_actions)
-            if epsilon
-            and random.choices((True, False), weights=(self.epsilon, 1 - self.epsilon))
-            and len(available_actions) != len(best_actions)
-            else tuple(best_actions)
-        )
+        return random.choices([*best_actions, *random_actions], weights=weights)[0]
 
 
 def train(n):
