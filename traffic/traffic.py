@@ -1,8 +1,16 @@
+import imp
 import cv2
 import numpy as np
 import os
 import sys
 import tensorflow as tf
+from tensorflow.keras.layers import (
+    Conv2D,
+    Flatten,
+    MaxPooling2D,
+    Dense,
+    DepthwiseConv2D,
+)
 
 from sklearn.model_selection import train_test_split
 
@@ -21,9 +29,6 @@ def main():
 
     # Get image arrays and labels for all image files
     images, labels = load_data(sys.argv[1])
-    print(images.shape)
-    print(labels.shape)
-    sys.exit("Not implemented further")
 
     # Split data into training and testing sets
     labels = tf.keras.utils.to_categorical(labels)
@@ -87,7 +92,18 @@ def get_model():
     `input_shape` of the first layer is `(IMG_WIDTH, IMG_HEIGHT, 3)`.
     The output layer should have `NUM_CATEGORIES` units, one for each category.
     """
-    raise NotImplementedError
+    model = tf.keras.models.Sequential()
+    model.add(Conv2D(32, (3, 3), activation="relu", input_shape=(30, 30, 3)))
+    model.add(DepthwiseConv2D((3, 3)))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Conv2D(32, (3, 3), activation="relu"))
+    model.add(Flatten())
+    model.add(Dense(200, activation="relu"))
+    model.add(Dense(NUM_CATEGORIES, activation="softmax"))
+    model.compile(
+        optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"]
+    )
+    return model
 
 
 if __name__ == "__main__":
