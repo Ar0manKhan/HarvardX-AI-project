@@ -55,14 +55,15 @@ def main():
             print(" ".join(np.flatten()))
 
 
-def preprocess(sentence):
+def preprocess(sentence: str) -> list[str]:
     """
     Convert `sentence` to a list of its words.
     Pre-process sentence by converting all characters to lowercase
     and removing any word that does not contain at least one alphabetic
     character.
     """
-    raise NotImplementedError
+    sentence = nltk.word_tokenize(sentence.lower())
+    return list(filter(lambda s: s.islower(), sentence))
 
 
 def np_chunk(tree):
