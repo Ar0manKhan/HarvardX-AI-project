@@ -78,8 +78,13 @@ def np_chunk(tree):
     whose label is "NP" that does not itself contain any other
     noun phrases as subtrees.
     """
-
-    return tree
+    to_return = []
+    if type(tree) == nltk.tree.Tree:
+        for st in tree:
+            to_return.extend(np_chunk(st))
+        if not bool(to_return) and tree.label() == "NP":
+            to_return.append(tree)
+    return to_return
 
 
 if __name__ == "__main__":
