@@ -53,7 +53,7 @@ def load_files(directory: str):
     return data
 
 
-def tokenize(document):
+def tokenize(document: str):
     """
     Given a document (represented as a string), return a list of all of the
     words in that document, in order.
@@ -61,7 +61,12 @@ def tokenize(document):
     Process document by coverting all words to lowercase, and removing any
     punctuation or English stopwords.
     """
-    raise NotImplementedError
+    stopwords = set(nltk.corpus.stopwords.words("english"))
+    return [
+        word.lower()
+        for word in nltk.word_tokenize(document)
+        if word.isalpha() and word not in stopwords
+    ]
 
 
 def compute_idfs(documents):
