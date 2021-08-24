@@ -1,6 +1,4 @@
-import nltk
-import sys
-import os
+import nltk, sys, os, math
 
 FILE_MATCHES = 1
 SENTENCE_MATCHES = 1
@@ -69,7 +67,7 @@ def tokenize(document: str):
     ]
 
 
-def compute_idfs(documents):
+def compute_idfs(documents: dict):
     """
     Given a dictionary of `documents` that maps names of documents to a list
     of words, return a dictionary that maps words to their IDF values.
@@ -77,7 +75,15 @@ def compute_idfs(documents):
     Any word that appears in at least one of the documents should be in the
     resulting dictionary.
     """
-    raise NotImplementedError
+    words = set()
+    for word_list in documents.values():
+        words.update(word_list)
+    corpus_length = len(documents)
+    idfs = {}
+    for word in words:
+        f = sum(word in documents[file] for file in documents)
+        idfs[word] = math.log(corpus_length / f)
+    return idfs
 
 
 def top_files(query, files, idfs, n):
