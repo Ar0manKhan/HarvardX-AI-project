@@ -39,7 +39,7 @@ def main():
         print(match)
 
 
-def load_files(directory: str):
+def load_files(directory: str) -> dict[str, str]:
     """
     Given a directory name, return a dictionary mapping the filename of each
     `.txt` file inside that directory to the file's contents as a string.
@@ -47,11 +47,11 @@ def load_files(directory: str):
     data = {}
     for file in filter(lambda x: x.endswith(".txt"), os.listdir(directory)):
         with open(os.path.join(directory, file), encoding="utf8") as f:
-            data[file[:-4]] = f.read()
+            data[file] = f.read()
     return data
 
 
-def tokenize(document: str):
+def tokenize(document: str) -> list[str]:
     """
     Given a document (represented as a string), return a list of all of the
     words in that document, in order.
@@ -67,7 +67,7 @@ def tokenize(document: str):
     ]
 
 
-def compute_idfs(documents: dict):
+def compute_idfs(documents: dict) -> dict[str, float]:
     """
     Given a dictionary of `documents` that maps names of documents to a list
     of words, return a dictionary that maps words to their IDF values.
@@ -81,19 +81,29 @@ def compute_idfs(documents: dict):
     corpus_length = len(documents)
     idfs = {}
     for word in words:
-        f = sum(word in documents[file] for file in documents)
+        f: int = sum(word in documents[file] for file in documents)
         idfs[word] = math.log(corpus_length / f)
     return idfs
 
 
-def top_files(query, files, idfs, n):
+def top_files(query, files, idfs, n) -> list[str]:
     """
     Given a `query` (a set of words), `files` (a dictionary mapping names of
     files to a list of their words), and `idfs` (a dictionary mapping words
     to their IDF values), return a list of the filenames of the the `n` top
     files that match the query, ranked according to tf-idf.
     """
-    raise NotImplementedError
+    tfidfs = {}
+    for file in files:
+        sum = 0
+        for word in query:
+            # Making an exception if word isn't found in corpus and add nothing.
+            try:
+                sum += files[file].count(word) * idfs[word]
+            except KeyError:
+                pass
+        tfidfs[file] = sum
+    return sorted(tfidfs, key=lambda file: tfidfs[file], reverse=True)[:n]
 
 
 def top_sentences(query, sentences, idfs, n):
