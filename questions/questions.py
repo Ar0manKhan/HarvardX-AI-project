@@ -1,5 +1,6 @@
 import nltk
 import sys
+import os
 
 FILE_MATCHES = 1
 SENTENCE_MATCHES = 1
@@ -13,10 +14,7 @@ def main():
 
     # Calculate IDF values across files
     files = load_files(sys.argv[1])
-    file_words = {
-        filename: tokenize(files[filename])
-        for filename in files
-    }
+    file_words = {filename: tokenize(files[filename]) for filename in files}
     file_idfs = compute_idfs(file_words)
 
     # Prompt user for query
@@ -43,12 +41,16 @@ def main():
         print(match)
 
 
-def load_files(directory):
+def load_files(directory: str):
     """
     Given a directory name, return a dictionary mapping the filename of each
     `.txt` file inside that directory to the file's contents as a string.
     """
-    raise NotImplementedError
+    data = {}
+    for file in filter(lambda x: x.endswith(".txt"), os.listdir(directory)):
+        with open(os.path.join(directory, file), encoding="utf8") as f:
+            data[file[:-4]] = f.read()
+    return data
 
 
 def tokenize(document):
