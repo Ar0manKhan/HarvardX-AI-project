@@ -1,4 +1,7 @@
-import nltk, sys, os, math
+import nltk
+import sys
+import os
+import math
 
 FILE_MATCHES = 1
 SENTENCE_MATCHES = 1
@@ -106,7 +109,7 @@ def top_files(query, files, idfs, n) -> list[str]:
     return sorted(tfidfs, key=lambda file: tfidfs[file], reverse=True)[:n]
 
 
-def top_sentences(query, sentences, idfs, n):
+def top_sentences(query: set[str], sentences, idfs, n):
     """
     Given a `query` (a set of words), `sentences` (a dictionary mapping
     sentences to a list of their words), and `idfs` (a dictionary mapping words
@@ -114,7 +117,23 @@ def top_sentences(query, sentences, idfs, n):
     the query, ranked according to idf. If there are ties, preference should
     be given to sentences that have a higher query term density.
     """
-    raise NotImplementedError
+    tfidfs = {}
+    for sentence in sentences:
+        sum = 0
+        for word in query:
+            try:
+                sum += idfs[word] if word in sentences[sentence] else 0
+            except KeyError:
+                pass
+        tfidfs[sentence] = sum
+    return sorted(
+        tfidfs,
+        key=lambda s: (
+            tfidfs[s],
+            len(query.intersection(set(sentences[s]))) / len(sentences[s]),
+        ),
+        reverse=True,
+    )[:n]
 
 
 if __name__ == "__main__":
